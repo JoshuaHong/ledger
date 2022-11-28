@@ -117,7 +117,7 @@ class ReceiptBuilder(AbstractTransactionBuilder):
         """
         return selector.search(
                 self._find_receipt_files()[:ReceiptBuilder.MAX_RESULTS],
-                are_duplicates_hidden=True, is_reversed=True, prompt="Search :")
+                are_duplicates_hidden=True, is_reversed=True, prompt="Search: ")
 
 
     def _find_receipt_files(self) -> list[str]:
