@@ -6,7 +6,7 @@ Keep track of your transactions in the terminal.
 
 ## Overview
 A simple terminal interface to manage transactions locally. \
-The transactions are stored in the ledger file provided, and the receipts is copied to the receipt directory. \
+The transactions are stored in a ledger file, and the receipts are copied to the receipt directory. \
 Transactions are saved in the following format:
 * Description: A brief summary of the transaction.
 * Items: The items involved.
