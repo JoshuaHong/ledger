@@ -20,6 +20,7 @@ class AddressBuilder(AbstractTransactionBuilder):
     STEP: list[AbstractLedgerObject.Key] = [
             Address.Key.NAME, Address.Key.STREET, Address.Key.CITY,
             Address.Key.PROVINCE, Address.Key.POSTAL_CODE, Address.Key.COUNTRY]
+    URL_PREFIXES: list[str] = ["http://", "https://", "www."]
 
 
     def __init__(self, ledger: Ledger) -> None:
@@ -60,6 +61,8 @@ class AddressBuilder(AbstractTransactionBuilder):
                         self.name = self.build_name(self.name \
                                 or (prefill_address.get_name() \
                                 if prefill_address else ""))
+                        if (self._is_url(self.name)):
+                            self._prefill_no_address()
                     case Address.Key.STREET:
                         self.street = self.build_street(self.street \
                                 or (prefill_address.get_street() \
@@ -232,6 +235,32 @@ class AddressBuilder(AbstractTransactionBuilder):
             return latest_address 
         else:
             return None
+
+
+    def _is_url(self, name: str) -> bool:
+        """
+        Returns true if the name is a standard URL, false otherwise.
+
+        Parameters:
+            name: The name of the string to check if it is a URL.
+
+        Returns: A boolean denoting whether the name is a URL.
+        """
+        for url_prefix in AddressBuilder.URL_PREFIXES:
+            if (name.startswith(url_prefix)):
+                return True
+        return False
+
+
+    def _prefill_no_address(self) -> None:
+        """
+        Prefills the remaining address fields with "N/A".
+        """
+        self.street = "N/A"
+        self.city = "N/A"
+        self.province = "N/A"
+        self.postal_code = "N/A"
+        self.country = "N/A"
 
 
     def _reset(self) -> None:

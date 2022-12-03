@@ -1,5 +1,4 @@
-#!/usr/bin/python3.11
-# TODO: Change this back to python once it is released.
+#!/usr/bin/python
 #
 # Terminal user interface to manage transactions in the ledger.
 
