@@ -102,15 +102,14 @@ def display(items: Iterable[str], is_sorted: bool = False,
         items = list(dict.fromkeys(items))  # Sort list and preserve order.
     if ("PAGER" in os.environ):
         joined_items: str = '\n'.join(items)
-        p1: Popen = subprocess.Popen(
-                ["echo", joined_items], stdout=subprocess.PIPE)
-        p2: Popen = subprocess.Popen([os.environ.get("PAGER")], stdin=p1.stdout)
-        p1.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
-        p2.communicate()  # Wait for the process to terminate.
+        pager_process: Popen = subprocess.Popen([os.environ.get("PAGER")],
+                stdin=subprocess.PIPE, text=True)
+        pager_process.communicate(input=joined_items)
     else:
+        joined_items: str = '\n\t'.join(items)
         print("\tWarning: The \"PAGER\" environment variable is not set. "
               + "Printing to standard output instead:", file=sys.stderr)
-        print("\t", items)
+        print("\t" + joined_items)
 
 
 def search(items: Iterable[str], prompt: str = "", is_sorted: bool = False,
@@ -143,13 +142,9 @@ def search(items: Iterable[str], prompt: str = "", is_sorted: bool = False,
     if (are_duplicates_hidden):
         items = list(dict.fromkeys(items))  # Sort list and preserve order.
     joined_items: str = '\n'.join(items)
-    p1: Popen = subprocess.Popen(
-            ["echo", joined_items], stdout=subprocess.PIPE)
-    p2: Popen = subprocess.Popen(
-            ["fzf", "--prompt", prompt], stdin=p1.stdout,
-            stdout=subprocess.PIPE, text=True)
-    p1.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
-    return p2.communicate()[0].strip()  # Return the item selected.
+    fzf_process: Popen = subprocess.Popen(["fzf", "--prompt", prompt],
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
+    return fzf_process.communicate(input=joined_items)[0].strip()
 
 
 def prefill_input(prefill_text: str, prompt: str = "") -> str:

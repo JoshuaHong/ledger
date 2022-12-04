@@ -19,8 +19,7 @@ class ReceiptBuilder(AbstractTransactionBuilder):
     Terminal user interface to build a receipt.
     """
 
-    MAX_RESULTS: int = 1000
-    RECEIPT_FILETYPES: list[str] = ["*.jpg", "*.pdf", "*.png"]
+    RECEIPT_FILETYPES: list[str] = [".jpg", ".pdf", ".png"]
 
 
     def __init__(self, ledger: Ledger, receipts_directory: Path,
@@ -61,7 +60,7 @@ class ReceiptBuilder(AbstractTransactionBuilder):
                         + "path, or \"" \
                         + str(AbstractTransactionManager.NO_RECEIPT) + "\".",
                       file=sys.stderr)
-            elif (not receipt.suffix):
+            elif (receipt.suffix not in ReceiptBuilder.RECEIPT_FILETYPES):
                 print("\tError: Please enter a valid receipt file:",
                       ReceiptBuilder.RECEIPT_FILETYPES, file=sys.stderr)
             else:
@@ -76,13 +75,13 @@ class ReceiptBuilder(AbstractTransactionBuilder):
         """
         if (receipt == AbstractTransactionManager.NO_RECEIPT):
             return AbstractTransactionManager.NO_RECEIPT
-        new_receipt: Path = self._get_new_receipt(receipt.suffix)
+        new_receipt: Path = self._get_new_receipt_name(receipt.suffix)
         shutil.copy2(str(receipt),
                      self.receipts_directory.joinpath(new_receipt))
         return new_receipt
 
 
-    def _get_new_receipt(self, suffix: str) -> Path:
+    def _get_new_receipt_name(self, suffix: str) -> Path:
         """
         Search the receipts directory for the next incremental receipt name, and
         return it.
@@ -104,9 +103,7 @@ class ReceiptBuilder(AbstractTransactionBuilder):
         """
         List all potential receipts in the search directory.
         """
-        selector.display(
-                self._find_receipt_files()[:ReceiptBuilder.MAX_RESULTS],
-                are_duplicates_hidden=True)
+        selector.display(self._find_receipt_files(), are_duplicates_hidden=True)
 
 
     def _search_receipts(self) -> str:
@@ -115,8 +112,7 @@ class ReceiptBuilder(AbstractTransactionBuilder):
 
         Returns: The search result to use as the prefill text.
         """
-        return selector.search(
-                self._find_receipt_files()[:ReceiptBuilder.MAX_RESULTS],
+        return selector.search(self._find_receipt_files(),
                 are_duplicates_hidden=True, is_reversed=True, prompt="Search: ")
 
 
@@ -128,7 +124,7 @@ class ReceiptBuilder(AbstractTransactionBuilder):
         """
         receipt_files = list()
         for filetype in ReceiptBuilder.RECEIPT_FILETYPES:
-            receipt_files.extend(self.search_directory.glob(filetype))
+            receipt_files.extend(self.search_directory.rglob("*" + filetype))
         self.receipt_files = \
                 [str(receipt_file) for receipt_file in receipt_files]
         return self.receipt_files

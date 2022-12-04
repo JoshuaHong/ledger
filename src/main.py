@@ -35,7 +35,7 @@ def parse_arguments() -> dict[str, any]:
     parser.add_argument("receipts_directory",
             help="The directory containing the receipts.")
     parser.add_argument("-s", "--search-directory", type=Path,
-            help="The directory in which to search for receipts.")
+            help="The directory in which to search for receipts recursively.")
     return parser.parse_args()
 
 
